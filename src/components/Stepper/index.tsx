@@ -1,21 +1,17 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, useCallback, useMemo, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from './ui/Button';
+import { Button } from '../ui/Button';
+
+import { useStepper } from './useStepper';
 
 interface IStepperContextValue {
   previousStep: VoidFunction;
   nextStep: VoidFunction;
 }
 
-const StepperContext = createContext({} as IStepperContextValue);
+export const StepperContext = createContext({} as IStepperContextValue);
 
 interface IStepperProps {
   initialState?: number;
@@ -71,21 +67,47 @@ export function StepperFooter({ children }: { children: React.ReactNode }) {
   return <footer className="mt-6 flex justify-end gap-2">{children}</footer>;
 }
 
-export function StepperPreviousButton() {
-  const { previousStep } = useContext(StepperContext);
+export function StepperPreviousButton({
+  size = 'sm',
+  variant = 'secondary',
+  type = 'button',
+  preventDefault = false,
+  ...props
+}: Omit<React.ComponentPropsWithoutRef<typeof Button>, 'onClick'> & {
+  preventDefault?: boolean;
+}) {
+  const { previousStep } = useStepper();
 
   return (
-    <Button variant="secondary" size="sm" type="button" onClick={previousStep}>
+    <Button
+      variant={variant}
+      size={size}
+      type={type}
+      onClick={!preventDefault ? previousStep : undefined}
+      {...props}
+    >
       Voltar
     </Button>
   );
 }
 
-export function StepperNextButton() {
-  const { nextStep } = useContext(StepperContext);
+export function StepperNextButton({
+  size = 'sm',
+  type = 'button',
+  preventDefault = false,
+  ...props
+}: Omit<React.ComponentPropsWithoutRef<typeof Button>, 'onClick'> & {
+  preventDefault?: boolean;
+}) {
+  const { nextStep } = useStepper();
 
   return (
-    <Button size="sm" type="button" onClick={nextStep}>
+    <Button
+      size={size}
+      type={type}
+      onClick={!preventDefault ? nextStep : undefined}
+      {...props}
+    >
       Próximo
     </Button>
   );
