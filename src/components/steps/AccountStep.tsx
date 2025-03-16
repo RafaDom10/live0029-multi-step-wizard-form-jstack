@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -28,6 +29,16 @@ export function AccountStep() {
       password: initialValue?.password ?? '',
     },
   });
+
+  useEffect(() => {
+    if (form.formState.isDirty) {
+      window.onbeforeunload = () => 'error';
+    }
+
+    return () => {
+      window.onbeforeunload = null;
+    };
+  }, [form.formState.isDirty]);
 
   const { nextStep } = useStepper();
 
