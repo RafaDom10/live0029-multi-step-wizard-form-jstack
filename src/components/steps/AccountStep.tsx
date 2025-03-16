@@ -2,6 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { safeGetSessionStorageGetItem } from '@/lib/utils';
+
 import { StepHeader } from '../StepHeader';
 import { StepperFooter, StepperNextButton } from '../Stepper';
 import { useStepper } from '../Stepper/useStepper';
@@ -16,19 +18,33 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function AccountStep() {
+  const initialValue = safeGetSessionStorageGetItem('account-step');
+
   const form = useForm<FormData>({
+    disabled: !!initialValue,
     resolver: zodResolver(schema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: initialValue?.email ?? '',
+      password: initialValue?.password ?? '',
     },
   });
 
   const { nextStep } = useStepper();
 
   const handleSubmit = form.handleSubmit((formData) => {
+    if (!initialValue) {
+      sessionStorage.setItem(
+        'account-step',
+        JSON.stringify({
+          email: formData.email,
+          password: '*'.repeat(formData.password.length),
+        }),
+      );
+    }
+
     // eslint-disable-next-line no-console
     console.log(formData);
+
     nextStep();
   });
 
